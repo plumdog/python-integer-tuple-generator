@@ -209,6 +209,192 @@ class IntsPerformanceTestCaseNaive(IntsPerformanceTestCaseBase):
         return l
 
 
+class IntsPerformanceTestCaseSmarter(IntsPerformanceTestCaseBase):
+    def test_2_dimensions_upto_2000(self):
+        l = []
+        for x in range(0, 2001):
+            for y in range(0, 2001):
+                if x + y > 2000:
+                    break
+                l.append((x, y))
+        return l
+
+    def test_3_dimensions_upto_200(self):
+        l = []
+        for x in range(0, 201):
+            for y in range(0, 201):
+                xy = x + y
+                if xy > 200:
+                    break
+                for z in range(0, 201):
+                    if xy + z > 200:
+                        break
+                    l.append((x, y, z))
+        return l
+
+    def test_4_dimensions_upto_70(self):
+        l = []
+        for w in range(0, 71):
+            for x in range(0, 71):
+                wx = w + x
+                if wx > 70:
+                    break
+                for y in range(0, 71):
+                    wxy = wx + y
+                    if wxy > 70:
+                        break
+                    for z in range(0, 71):
+                        if wxy + z > 70:
+                            break
+                        l.append((w, x, y, z))
+        return l
+
+    def test_5_dimensions_upto_40(self):
+        l = []
+        for v in range(0, 41):
+            for w in range(0, 41):
+                vw = v + w
+                if vw > 40:
+                    break
+                for x in range(0, 41):
+                    vwx = vw + x
+                    if vwx > 40:
+                        break
+                    for y in range(0, 41):
+                        vwxy = vwx + y
+                        if vwxy > 40:
+                            break
+                        for z in range(0, 41):
+                            if vwxy + z > 40:
+                                break
+                            l.append((v, w, x, y, z))
+        return l
+
+    def test_6_dimensions_upto_25(self):
+        l = []
+        for u in range(0, 26):
+            for v in range(0, 26):
+                uv = u + v
+                if uv > 25:
+                    break
+                for w in range(0, 26):
+                    uvw = uv + w
+                    if uvw > 25:
+                        break
+                    for x in range(0, 26):
+                        uvwx = uvw + x
+                        if uvwx > 25:
+                            break
+                        for y in range(0, 26):
+                            uvwxy = uvwx + y
+                            if uvwxy > 25:
+                                break
+                            for z in range(0, 26):
+                                if uvwxy + z > 25:
+                                    break
+                                l.append((u, v, w, x, y, z))
+        return l
+
+    def test_7_dimensions_upto_20(self):
+        l = []
+        for t in range(0, 21):
+            for u in range(0, 21):
+                tu = t + u
+                if tu > 20:
+                    break
+                for v in range(0, 21):
+                    tuv = tu + v
+                    if tuv > 20:
+                        break
+                    for w in range(0, 21):
+                        tuvw = tuv + w
+                        if tuvw > 20:
+                            break
+                        for x in range(0, 21):
+                            tuvwx = tuvw + x
+                            if tuvwx > 20:
+                                break
+                            for y in range(0, 21):
+                                tuvwxy = tuvwx + y
+                                if tuvwxy > 20:
+                                    break
+                                for z in range(0, 21):
+                                    if tuvwxy + z > 20:
+                                        break
+                                    l.append((t, u, v, w, x, y, z))
+        return l
+
+    def test_8_dimensions_upto_15(self):
+        l = []
+        for s in range(0, 16):
+            for t in range(0, 16):
+                st = s + t
+                if st > 15:
+                    break
+                for u in range(0, 16):
+                    stu = st + u
+                    if stu > 15:
+                        break
+                    for v in range(0, 16):
+                        stuv = stu + v
+                        if stuv > 15:
+                            break
+                        for w in range(0, 16):
+                            stuvw = stuv + w
+                            if stuvw > 15:
+                                break
+                            for x in range(0, 16):
+                                stuvwx = stuvw + x
+                                if stuvwx > 15:
+                                    break
+                                for y in range(0, 16):
+                                    stuvwxy = stuvwx + y
+                                    if stuvwxy > 15:
+                                        break
+                                    for z in range(0, 16):
+                                        if stuvwxy + z > 15:
+                                            break
+                                        l.append((s, t, u, v, w, x, y, z))
+        return l
+
+    def test_9_dimensions_upto_13(self):
+        l = []
+        for r in range(0, 14):
+            for s in range(0, 14):
+                rs = r + s
+                if rs > 13:
+                    break
+                for t in range(0, 14):
+                    rst = rs + t
+                    if rst > 13:
+                        break
+                    for u in range(0, 14):
+                        rstu = rst + u
+                        if rstu > 13:
+                            break
+                        for v in range(0, 14):
+                            rstuv = rstu + v
+                            if rstuv > 13:
+                                break
+                            for w in range(0, 14):
+                                rstuvw = rstuv + w
+                                if rstuvw > 13:
+                                    break
+                                for x in range(0, 14):
+                                    rstuvwx = rstuvw + x
+                                    if rstuvwx > 13:
+                                        break
+                                    for y in range(0, 14):
+                                        rstuvwxy = rstuvwx + y
+                                        if rstuvwxy > 13:
+                                            break
+                                        for z in range(0, 14):
+                                            if rstuvwxy + z > 13:
+                                                break
+                                            l.append((r, s, t, u, v, w, x, y, z))
+        return l
+
+
 class IntsPerformanceTestCaseItertools(IntsPerformanceTestCaseBase):
     def test_2_dimensions_upto_2000(self):
         l = []
@@ -238,4 +424,5 @@ class IntsPerformanceTestCaseItertools(IntsPerformanceTestCaseBase):
 if __name__ == '__main__':
     IntsPerformanceTestCase().run_tests()
     IntsPerformanceTestCaseNaive().run_tests()
+    IntsPerformanceTestCaseSmarter().run_tests()
     IntsPerformanceTestCaseItertools().run_tests()
