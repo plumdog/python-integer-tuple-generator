@@ -6,10 +6,11 @@ import itertools
 import integer_tuple_generator
 
 
-Result = collections.namedtuple('Result', ['name', 'time'])
+Result = collections.namedtuple('Result', ['name', 'time', 'exception'])
 
 
 class PerformanceTestCase(object):
+
     def tearDown(self):
         self.end = time.time()
         print('{id}: {timetaken}'.format(
@@ -19,13 +20,24 @@ class PerformanceTestCase(object):
         func = getattr(self, method_name)
         try:
             start = time.time()
-            func()
+            result = func()
             end = time.time()
             timetaken = end - start
         except NotImplementedError:
             timetaken = None
+            result = None
+
+        try:
+            self.verify_result(method_name, result)
+        except ValueError as ex:
+            pass
+        else:
+            ex = None
         return Result('{klass}.{func}'.format(klass=self.__class__.__name__, func=method_name),
-                      timetaken)
+                      time=timetaken, exception=ex)
+
+    def verify_result(self, method_name, result):
+        pass
 
     def run_tests(self):
         results = []
@@ -33,16 +45,49 @@ class PerformanceTestCase(object):
             if attr.startswith('test_'):
                 results.append(self.run_method(attr))
         results = sorted(results, key=lambda r: r.name)
-        width = max(len(result.name) for result in results)
-        time_width = 20
-        print('Test'.ljust(width), '|', 'Time')
-        print('-'*(width + time_width + 3))
+        name_width = max(len(result.name) for result in results)
+        time_width = max(len(str(result.time)) for result in results)
+
+        any_exceptions = any(result.exception for result in results)
+
+        if any_exceptions:
+            exception_width = max(len(str(result.exception)) for result in results)
+        else:
+            exception_width = 0
+
+        total_width = name_width + time_width + 3
+        if any_exceptions:
+            total_width += exception_width + 3
+        heading = '{name} | {time}'.format(name='Test Name'.ljust(name_width),
+                                           time='Time'.ljust(time_width))
+        if any_exceptions:
+            heading += ' | {exception}'.format(exception='Exception'.ljust(exception_width))
+        print(heading)
+        print('-'*total_width)
         for result in results:
-            print(result.name.ljust(width), '|', result.time)
+            line = '{test_name} | {time}'.format(test_name=result.name.ljust(name_width),
+                                                 time=str(result.time).ljust(time_width))
+            if any_exceptions:
+                if result.exception:
+                    line += ' | {exception}'.format(exception=str(result.exception))
+                else:
+                    line += ' |'
+            print(line)
         print()
 
 
 class IntsPerformanceTestCaseBase(PerformanceTestCase):
+
+    LENGTHS = {
+        'test_2_dimensions_upto_2000': 2003001,
+        'test_3_dimensions_upto_200': 1373701,
+        'test_4_dimensions_upto_70': 1150626,
+        'test_5_dimensions_upto_40': 1221759,
+        'test_6_dimensions_upto_25': 736281,
+        'test_7_dimensions_upto_20': 888030,
+        'test_8_dimensions_upto_15': 490314,
+        'test_9_dimensions_upto_13': 497420}
+
     def test_2_dimensions_upto_2000(self):
         raise NotImplementedError
 
@@ -66,32 +111,44 @@ class IntsPerformanceTestCaseBase(PerformanceTestCase):
 
     def test_9_dimensions_upto_13(self):
         raise NotImplementedError
+
+    def verify_result(self, method_name, result):
+        if result is None:
+            return
+        length = self.LENGTHS.get(method_name)
+        result_length = len(result)
+        if length is not None:
+            if result_length != length:
+                raise ValueError('{result_length} != {length}'.format(
+                    result_length=result_length, length=length))
+        else:
+            raise ValueError('Nothing to compare')
 
 
 class IntsPerformanceTestCase(IntsPerformanceTestCaseBase):
     def test_2_dimensions_upto_2000(self):
-        list(integer_tuple_generator.ints(2, 2000))
+        return list(integer_tuple_generator.ints(2, 2000))
 
     def test_3_dimensions_upto_200(self):
-        list(integer_tuple_generator.ints(3, 200))
+        return list(integer_tuple_generator.ints(3, 200))
 
     def test_4_dimensions_upto_70(self):
-        list(integer_tuple_generator.ints(4, 70))
+        return list(integer_tuple_generator.ints(4, 70))
 
     def test_5_dimensions_upto_40(self):
-        list(integer_tuple_generator.ints(5, 40))
+        return list(integer_tuple_generator.ints(5, 40))
 
     def test_6_dimensions_upto_25(self):
-        list(integer_tuple_generator.ints(6, 25))
+        return list(integer_tuple_generator.ints(6, 25))
 
     def test_7_dimensions_upto_20(self):
-        list(integer_tuple_generator.ints(7, 20))
+        return list(integer_tuple_generator.ints(7, 20))
 
     def test_8_dimensions_upto_15(self):
-        list(integer_tuple_generator.ints(8, 15))
+        return list(integer_tuple_generator.ints(8, 15))
 
     def test_9_dimensions_upto_13(self):
-        list(integer_tuple_generator.ints(9, 13))
+        return list(integer_tuple_generator.ints(9, 13))
 
 
 class IntsPerformanceTestCaseNaive(IntsPerformanceTestCaseBase):
@@ -102,6 +159,7 @@ class IntsPerformanceTestCaseNaive(IntsPerformanceTestCaseBase):
                 if x + y > 2000:
                     break
                 l.append((x, y))
+        return l
 
     def test_3_dimensions_upto_200(self):
         l = []
@@ -111,6 +169,7 @@ class IntsPerformanceTestCaseNaive(IntsPerformanceTestCaseBase):
                     if x + y + z > 200:
                         break
                     l.append((x, y, z))
+        return l
 
 
     def test_4_dimensions_upto_70(self):
@@ -122,6 +181,7 @@ class IntsPerformanceTestCaseNaive(IntsPerformanceTestCaseBase):
                         if w + x + y + z > 70:
                             break
                         l.append((w, x, y, z))
+        return l
 
     def test_5_dimensions_upto_40(self):
         l = []
@@ -133,6 +193,7 @@ class IntsPerformanceTestCaseNaive(IntsPerformanceTestCaseBase):
                             if v + w + x + y + z > 40:
                                 break
                             l.append((v, w, x, y, z))
+        return l
 
     def test_6_dimensions_upto_25(self):
         l = []
@@ -142,9 +203,10 @@ class IntsPerformanceTestCaseNaive(IntsPerformanceTestCaseBase):
                     for x in range(0, 26):
                         for y in range(0, 26):
                             for z in range(0, 26):
-                                if u + v + w + x + y + z > 40:
+                                if u + v + w + x + y + z > 25:
                                     break
                                 l.append((u, v, w, x, y, z))
+        return l
 
 
 class IntsPerformanceTestCaseItertools(IntsPerformanceTestCaseBase):
@@ -154,6 +216,7 @@ class IntsPerformanceTestCaseItertools(IntsPerformanceTestCaseBase):
             if x + y > 2000:
                 continue
             l.append((x, y))
+        return l
 
     def test_3_dimensions_upto_200(self):
         l = []
@@ -161,6 +224,7 @@ class IntsPerformanceTestCaseItertools(IntsPerformanceTestCaseBase):
             if x + y + z > 200:
                 continue
             l.append((x, y, z))
+        return l
 
     def test_4_dimensions_upto_70(self):
         l = []
@@ -168,15 +232,9 @@ class IntsPerformanceTestCaseItertools(IntsPerformanceTestCaseBase):
             if w + x + y + z > 70:
                 continue
             l.append((w, x, y, z))
+        return l
 
-    # def test_5_dimensions_upto_40(self):
-    #     l = []
-    #     for v, w, x, y, z in itertools.product(range(0, 41), range(0, 41), range(0, 41), range(0, 41), range(0, 41)):
-    #         if v + w + x + y + z > 40:
-    #             continue
-    #         l.append((v, w, x, y, z))
-        
-                
+
 if __name__ == '__main__':
     IntsPerformanceTestCase().run_tests()
     IntsPerformanceTestCaseNaive().run_tests()
